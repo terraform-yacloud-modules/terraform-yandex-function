@@ -6,7 +6,7 @@ variable "function_name" {
 variable "function_description" {
   description = "Description of the Yandex Cloud Function"
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "user_hash" {
