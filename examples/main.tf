@@ -28,16 +28,24 @@ data "archive_file" "function_zip" {
 }
 
 
-data "external" "user_hash" {
-  program = ["sh", "-c", templatefile("${path.module}/generate_hash.sh", { path = path.module })]
+locals {
+  file1_content = file("function.py")
+  file2_content = file("requirements.txt")
+  combined_content = "${local.file1_content}${local.file2_content}"
+  combined_hash = md5(local.combined_content)
 }
+
+output "combined_hash" {
+  value = local.combined_hash
+}
+
 
 module "function" {
   source = "../"
 
-  function_name        = "my_test_function"
+  function_name        = "my-test-function"
   function_description = "A test function for Yandex Cloud"
-  user_hash            = "user_defined_hash_12345"
+  user_hash            = local.combined_hash
   runtime              = "python37"
   entrypoint           = "main"
   memory               = "1024"
