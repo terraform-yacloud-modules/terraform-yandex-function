@@ -47,7 +47,7 @@ module "function" {
   function_description = "A test function for Yandex Cloud"
   user_hash            = local.combined_hash
   runtime              = "python37"
-  entrypoint           = "main"
+  entrypoint           = "main.handler"
   memory               = "1024"
   execution_timeout    = "10"
   service_account_id   = module.iam_accounts.id

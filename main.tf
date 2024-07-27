@@ -55,3 +55,9 @@ resource "yandex_function" "test_function" {
     }
   }
 }
+
+resource "yandex_function_iam_binding" "invoker" {
+  function_id = yandex_function.test_function.id
+  role        = "serverless.functions.invoker"
+  members     = ["system:allUsers"]
+}
