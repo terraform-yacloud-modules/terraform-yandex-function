@@ -60,8 +60,7 @@ module "function" {
 #       environment_variable = "SECRET_ENV_VAR_1"
 #     }
 #   ]
-#   zip_filename         = data.archive_file.main_zip.output_path
-  zip_filename         = "main.zip"
+  zip_filename         = data.archive_file.main_zip.output_path
 #   async_invocation = {
 #     retries_count      = "3"
 #     service_account_id = module.iam_accounts.id
