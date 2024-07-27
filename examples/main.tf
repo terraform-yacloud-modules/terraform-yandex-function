@@ -3,7 +3,9 @@ module "iam_accounts" {
 
   name      = "iam"
   folder_roles = [
-    "admin",
+    "serverless.functions.invoker",
+    "storage.editor",
+    "storage.uploader",
   ]
   cloud_roles              = []
   enable_static_access_key = false
@@ -27,7 +29,6 @@ data "archive_file" "main_zip" {
   }
 }
 
-
 locals {
   file1_content = file("main.py")
   file2_content = file("requirements.txt")
@@ -39,44 +40,18 @@ output "combined_hash" {
   value = local.combined_hash
 }
 
-
 module "function" {
   source = "../"
 
   function_name        = "my-test-function"
   function_description = "A test function for Yandex Cloud"
   user_hash            = local.combined_hash
-  runtime              = "python37"
+  runtime              = "python312"
   entrypoint           = "main.handler"
-  memory               = "1024"
+  memory               = "128"
   execution_timeout    = "10"
   service_account_id   = module.iam_accounts.id
   tags                 = ["my_tag"]
-#   secrets = [
-#     {
-#       id                   = "secret_id_1"
-#       version_id           = "secret_version_id_1"
-#       key                  = "secret_key_1"
-#       environment_variable = "SECRET_ENV_VAR_1"
-#     }
-#   ]
   zip_filename         = data.archive_file.main_zip.output_path
-#   async_invocation = {
-#     retries_count      = "3"
-#     service_account_id = module.iam_accounts.id
-#     ymq_failure_target = {
-#       service_account_id = module.iam_accounts.id
-#       arn                = "yrn:yc:ymq:ru-central1:xxxx:fail"
-#     }
-#     ymq_success_target = {
-#       service_account_id = module.iam_accounts.id
-#       arn                = "yrn:yc:ymq:ru-central1:xxxx:success"
-#     }
-#   }
-#   log_options = {
-#     log_group_id = "xxxx"
-#     min_level    = "ERROR"
-#   }
-
-  depends_on = [ module.iam_accounts ]
+  depends_on           = [ module.iam_accounts ]
 }
