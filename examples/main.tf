@@ -12,13 +12,13 @@ module "iam_accounts" {
 
 }
 
-data "archive_file" "function_zip" {
+data "archive_file" "main_zip" {
   type        = "zip"
-  output_path = "${path.module}/function.zip"
+  output_path = "${path.module}/main.zip"
 
   source {
-    content  = file("${path.module}/function.py")
-    filename = "function.py"
+    content  = file("${path.module}/main.py")
+    filename = "main.py"
   }
 
   source {
@@ -29,7 +29,7 @@ data "archive_file" "function_zip" {
 
 
 locals {
-  file1_content = file("function.py")
+  file1_content = file("main.py")
   file2_content = file("requirements.txt")
   combined_content = "${local.file1_content}${local.file2_content}"
   combined_hash = md5(local.combined_content)
@@ -60,7 +60,8 @@ module "function" {
 #       environment_variable = "SECRET_ENV_VAR_1"
 #     }
 #   ]
-  zip_filename         = data.archive_file.function_zip.output_path
+#   zip_filename         = data.archive_file.main_zip.output_path
+  zip_filename         = "main.zip"
 #   async_invocation = {
 #     retries_count      = "3"
 #     service_account_id = module.iam_accounts.id
