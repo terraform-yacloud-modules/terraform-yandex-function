@@ -26,8 +26,8 @@ resource "yandex_function" "test_function" {
   dynamic "async_invocation" {
     for_each = var.async_invocation != null ? [1] : []
     content {
-      retries_count       = var.async_invocation.retries_count
-      service_account_id  = var.async_invocation.service_account_id
+      retries_count      = var.async_invocation.retries_count
+      service_account_id = var.async_invocation.service_account_id
 
       dynamic "ymq_failure_target" {
         for_each = var.async_invocation.ymq_failure_target != null ? [1] : []

@@ -37,3 +37,4 @@ override.tf.json
 terraform.rc
 /examples/function.zip
 /examples/main.zip
+.idea

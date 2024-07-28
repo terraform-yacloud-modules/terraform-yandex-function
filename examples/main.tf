@@ -1,7 +1,7 @@
 module "iam_accounts" {
-  source = "git::https://github.com/terraform-yacloud-modules/terraform-yandex-iam.git//modules/iam-account"
+  source = "git::https://github.com/terraform-yacloud-modules/terraform-yandex-iam.git//modules/iam-account?ref=v1.0.0"
 
-  name      = "iam"
+  name = "iam"
   folder_roles = [
     "serverless.functions.invoker",
     "storage.editor",
@@ -30,14 +30,10 @@ data "archive_file" "main_zip" {
 }
 
 locals {
-  file1_content = file("main.py")
-  file2_content = file("requirements.txt")
+  file1_content    = file("main.py")
+  file2_content    = file("requirements.txt")
   combined_content = "${local.file1_content}${local.file2_content}"
-  combined_hash = md5(local.combined_content)
-}
-
-output "combined_hash" {
-  value = local.combined_hash
+  combined_hash    = md5(local.combined_content)
 }
 
 module "function" {
@@ -53,5 +49,5 @@ module "function" {
   service_account_id   = module.iam_accounts.id
   tags                 = ["my_tag"]
   zip_filename         = data.archive_file.main_zip.output_path
-  depends_on           = [ module.iam_accounts ]
+  depends_on           = [module.iam_accounts]
 }
