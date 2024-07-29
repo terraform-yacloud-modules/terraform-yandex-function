@@ -88,3 +88,9 @@ variable "log_options" {
   })
   default = null
 }
+
+variable "public_function" {
+  description = "Determines if the function should be publicly accessible"
+  type        = bool
+  default     = false
+}

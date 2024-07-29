@@ -40,6 +40,7 @@ module "function" {
   source = "../"
 
   function_name        = "my-test-function"
+  public_function      = true
   function_description = "A test function for Yandex Cloud"
   user_hash            = local.combined_hash
   runtime              = "python312"
