@@ -47,6 +47,7 @@ No modules.
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | Yandex Cloud Function name | `string` | n/a | yes |
 | <a name="input_log_options"></a> [log\_options](#input\_log\_options) | Options for logging from Yandex Cloud Function | <pre>object({<br>    log_group_id = string<br>    min_level    = string<br>  })</pre> | `null` | no |
 | <a name="input_memory"></a> [memory](#input\_memory) | Memory in megabytes (aligned to 128MB) for Yandex Cloud Function | `string` | n/a | yes |
+| <a name="input_public_function"></a> [public\_function](#input\_public\_function) | Determines if the function should be publicly accessible | `bool` | `false` | no |
 | <a name="input_runtime"></a> [runtime](#input\_runtime) | Runtime for Yandex Cloud Function | `string` | n/a | yes |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | Secrets for Yandex Cloud Function | <pre>list(object({<br>    id                   = string<br>    version_id           = string<br>    key                  = string<br>    environment_variable = string<br>  }))</pre> | `[]` | no |
 | <a name="input_service_account_id"></a> [service\_account\_id](#input\_service\_account\_id) | Service account ID for Yandex Cloud Function | `string` | `null` | no |

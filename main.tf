@@ -57,6 +57,7 @@ resource "yandex_function" "test_function" {
 }
 
 resource "yandex_function_iam_binding" "invoker" {
+  count       = var.public_function ? 1 : 0
   function_id = yandex_function.test_function.id
   role        = "serverless.functions.invoker"
   members     = ["system:allUsers"]
