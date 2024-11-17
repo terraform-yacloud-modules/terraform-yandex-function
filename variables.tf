@@ -66,6 +66,12 @@ variable "secrets" {
   default = []
 }
 
+variable "env_vars" {
+  description = ""
+  type        = map(string)
+  default     = {}
+}
+
 variable "zip_filename" {
   description = "Filename to zip archive for the version"
   type        = string

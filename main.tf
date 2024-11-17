@@ -1,4 +1,4 @@
-resource "yandex_function" "test_function" {
+resource "yandex_function" "main" {
   name               = var.function_name
   description        = var.function_description
   user_hash          = var.user_hash
@@ -18,6 +18,8 @@ resource "yandex_function" "test_function" {
       environment_variable = secrets.value.environment_variable
     }
   }
+
+  environment = var.env_vars
 
   content {
     zip_filename = var.zip_filename
@@ -58,7 +60,7 @@ resource "yandex_function" "test_function" {
 
 resource "yandex_function_iam_binding" "invoker" {
   count       = var.public_function ? 1 : 0
-  function_id = yandex_function.test_function.id
+  function_id = yandex_function.main.id
   role        = "serverless.functions.invoker"
   members     = ["system:allUsers"]
 }
