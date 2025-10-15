@@ -51,4 +51,11 @@ module "function" {
   tags                 = ["my_tag"]
   zip_filename         = data.archive_file.main_zip.output_path
   depends_on           = [module.iam_accounts]
+
+  timeouts = {
+    create = "40m"
+    update = "40m"
+    delete = "40m"
+  }
+
 }

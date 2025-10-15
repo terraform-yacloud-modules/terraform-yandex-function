@@ -108,3 +108,14 @@ variable "public_function" {
   type        = bool
   default     = false
 }
+
+
+variable "timeouts" {
+  description = "Timeout settings for cluster operations"
+  type = object({
+    create = optional(string)
+    update = optional(string)
+    delete = optional(string)
+  })
+  default = null
+}

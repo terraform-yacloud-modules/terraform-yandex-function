@@ -56,6 +56,17 @@ resource "yandex_function" "main" {
       min_level    = var.log_options.min_level
     }
   }
+
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = try(timeouts.value.create, null)
+      update = try(timeouts.value.update, null)
+      delete = try(timeouts.value.delete, null)
+    }
+  }
+
 }
 
 resource "yandex_function_iam_binding" "invoker" {
@@ -63,4 +74,5 @@ resource "yandex_function_iam_binding" "invoker" {
   function_id = yandex_function.main.id
   role        = "serverless.functions.invoker"
   members     = ["system:allUsers"]
+
 }
