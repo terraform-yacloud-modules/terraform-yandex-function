@@ -75,6 +75,18 @@ variable "env_vars" {
 variable "zip_filename" {
   description = "Filename to zip archive for the version"
   type        = string
+  default     = null
+}
+
+variable "package" {
+  description = "Package configuration for deploying from object storage"
+  type = object({
+    bucket_name = string
+    object_name = string
+    sha_256     = optional(string)
+  })
+  default = null
+
 }
 
 variable "async_invocation" {
@@ -109,6 +121,64 @@ variable "public_function" {
   default     = false
 }
 
+
+variable "folder_id" {
+  description = "Folder ID for the Yandex Cloud Function"
+  type        = string
+  default     = null
+}
+
+variable "labels" {
+  description = "A set of key/value label pairs to assign to the function"
+  type        = map(string)
+  default     = {}
+}
+
+variable "mounts" {
+  description = "Mount configurations for the function"
+  type = list(object({
+    name = string
+    mode = optional(string)
+    ephemeral_disk = optional(object({
+      size_gb       = number
+      block_size_kb = optional(number)
+    }))
+    object_storage = optional(object({
+      bucket = string
+      prefix = optional(string)
+    }))
+  }))
+  default = []
+}
+
+variable "connectivity" {
+  description = "Network connectivity settings for the function"
+  type = object({
+    network_id = string
+  })
+  default = null
+}
+
+variable "metadata_options" {
+  description = "Options to set the access mode to function's metadata endpoints"
+  type = object({
+    aws_v1_http_endpoint = optional(number)
+    gce_http_endpoint    = optional(number)
+  })
+  default = null
+}
+
+variable "tmpfs_size" {
+  description = "Size of the temporary file system"
+  type        = string
+  default     = null
+}
+
+variable "concurrency" {
+  description = "The maximum number of requests processed by a function instance at the same time"
+  type        = string
+  default     = null
+}
 
 variable "timeouts" {
   description = "Timeout settings for cluster operations"

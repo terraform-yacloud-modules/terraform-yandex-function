@@ -8,6 +8,10 @@ resource "yandex_function" "main" {
   execution_timeout  = var.execution_timeout
   service_account_id = var.service_account_id
   tags               = var.tags
+  folder_id          = var.folder_id
+  labels             = var.labels
+  tmpfs_size         = var.tmpfs_size
+  concurrency        = var.concurrency
 
   dynamic "secrets" {
     for_each = var.secrets
@@ -21,8 +25,59 @@ resource "yandex_function" "main" {
 
   environment = var.env_vars
 
-  content {
-    zip_filename = var.zip_filename
+  dynamic "content" {
+    for_each = var.zip_filename != null ? [1] : []
+    content {
+      zip_filename = var.zip_filename
+    }
+  }
+
+  dynamic "package" {
+    for_each = var.package != null ? [var.package] : []
+    content {
+      bucket_name = package.value.bucket_name
+      object_name = package.value.object_name
+      sha_256     = try(package.value.sha_256, null)
+    }
+  }
+
+  dynamic "mounts" {
+    for_each = var.mounts
+    content {
+      name = mounts.value.name
+      mode = try(mounts.value.mode, null)
+
+      dynamic "ephemeral_disk" {
+        for_each = try(mounts.value.ephemeral_disk, null) != null ? [mounts.value.ephemeral_disk] : []
+        content {
+          size_gb       = ephemeral_disk.value.size_gb
+          block_size_kb = try(ephemeral_disk.value.block_size_kb, null)
+        }
+      }
+
+      dynamic "object_storage" {
+        for_each = try(mounts.value.object_storage, null) != null ? [mounts.value.object_storage] : []
+        content {
+          bucket = object_storage.value.bucket
+          prefix = try(object_storage.value.prefix, null)
+        }
+      }
+    }
+  }
+
+  dynamic "connectivity" {
+    for_each = var.connectivity != null ? [var.connectivity] : []
+    content {
+      network_id = connectivity.value.network_id
+    }
+  }
+
+  dynamic "metadata_options" {
+    for_each = var.metadata_options != null ? [var.metadata_options] : []
+    content {
+      aws_v1_http_endpoint = try(metadata_options.value.aws_v1_http_endpoint, null)
+      gce_http_endpoint    = try(metadata_options.value.gce_http_endpoint, null)
+    }
   }
 
   dynamic "async_invocation" {
