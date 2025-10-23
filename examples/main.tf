@@ -49,27 +49,6 @@ module "function" {
   execution_timeout    = "10"
   service_account_id   = module.iam_accounts.id
   tags                 = ["my_tag"]
-  labels = {
-    environment = "test"
-    project     = "demo"
-  }
-  env_vars = {
-    ENVIRONMENT = "test"
-    LOG_LEVEL   = "debug"
-  }
-
-  mounts = [
-    {
-      name = "ephemeral-storage"
-      ephemeral_disk = {
-        size_gb = 1
-      }
-    }
-  ]
-  log_options = {
-    log_group_id = "my-log-group-id"
-    min_level    = "INFO"
-  }
   metadata_options = {
     aws_v1_http_endpoint = 1
     gce_http_endpoint    = 1
@@ -78,7 +57,6 @@ module "function" {
     retries_count      = "3"
     service_account_id = module.iam_accounts.id
   }
-  tmpfs_size  = "128"
   concurrency = "10"
   zip_filename         = data.archive_file.main_zip.output_path
   depends_on           = [module.iam_accounts]
