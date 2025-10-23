@@ -49,8 +49,17 @@ module "function" {
   execution_timeout    = "10"
   service_account_id   = module.iam_accounts.id
   tags                 = ["my_tag"]
-  zip_filename         = data.archive_file.main_zip.output_path
-  depends_on           = [module.iam_accounts]
+  metadata_options = {
+    aws_v1_http_endpoint = 1
+    gce_http_endpoint    = 1
+  }
+  async_invocation = {
+    retries_count      = "3"
+    service_account_id = module.iam_accounts.id
+  }
+  concurrency  = "10"
+  zip_filename = data.archive_file.main_zip.output_path
+  depends_on   = [module.iam_accounts]
 
   timeouts = {
     create = "40m"
