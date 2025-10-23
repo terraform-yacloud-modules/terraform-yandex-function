@@ -57,9 +57,9 @@ module "function" {
     retries_count      = "3"
     service_account_id = module.iam_accounts.id
   }
-  concurrency = "10"
-  zip_filename         = data.archive_file.main_zip.output_path
-  depends_on           = [module.iam_accounts]
+  concurrency  = "10"
+  zip_filename = data.archive_file.main_zip.output_path
+  depends_on   = [module.iam_accounts]
 
   timeouts = {
     create = "40m"
