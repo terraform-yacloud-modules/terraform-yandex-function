@@ -1,3 +1,5 @@
+data "yandex_client_config" "client" {}
+
 resource "yandex_function" "main" {
   name               = var.function_name
   description        = var.function_description
@@ -8,7 +10,7 @@ resource "yandex_function" "main" {
   execution_timeout  = var.execution_timeout
   service_account_id = var.service_account_id
   tags               = var.tags
-  folder_id          = var.folder_id
+  folder_id          = coalesce(var.folder_id, data.yandex_client_config.client.folder_id)
   labels             = var.labels
   tmpfs_size         = var.tmpfs_size
   concurrency        = var.concurrency
