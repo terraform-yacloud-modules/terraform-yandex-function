@@ -35,12 +35,22 @@ variable "entrypoint" {
 variable "memory" {
   description = "Memory in megabytes (aligned to 128MB) for Yandex Cloud Function"
   type        = string
+
+  validation {
+    condition     = can(regex("^[0-9]+$", var.memory)) && tonumber(var.memory) >= 128 && tonumber(var.memory) <= 8192 && tonumber(var.memory) % 128 == 0
+    error_message = "Memory must be a number between 128 and 8192 MB, and must be aligned to 128MB."
+  }
 }
 
 variable "execution_timeout" {
   description = "Execution timeout in seconds for Yandex Cloud Function"
   type        = string
   default     = "3"
+
+  validation {
+    condition     = can(regex("^[0-9]+$", var.execution_timeout)) && tonumber(var.execution_timeout) >= 1 && tonumber(var.execution_timeout) <= 600
+    error_message = "Execution timeout must be a number between 1 and 600 seconds."
+  }
 }
 
 variable "service_account_id" {
@@ -104,6 +114,11 @@ variable "async_invocation" {
     }))
   })
   default = null
+
+  validation {
+    condition     = var.async_invocation == null || (can(regex("^[0-9]+$", var.async_invocation.retries_count)) && tonumber(var.async_invocation.retries_count) >= 0 && tonumber(var.async_invocation.retries_count) <= 100)
+    error_message = "Async invocation retries_count must be a number between 0 and 100."
+  }
 }
 
 variable "log_options" {
@@ -166,6 +181,14 @@ variable "metadata_options" {
     gce_http_endpoint    = optional(number)
   })
   default = null
+
+  validation {
+    condition     = var.metadata_options == null || (
+                     (var.metadata_options.aws_v1_http_endpoint == null || (var.metadata_options.aws_v1_http_endpoint >= 1 && var.metadata_options.aws_v1_http_endpoint <= 2)) &&
+                     (var.metadata_options.gce_http_endpoint == null || (var.metadata_options.gce_http_endpoint >= 1 && var.metadata_options.gce_http_endpoint <= 2))
+                   )
+    error_message = "Metadata options endpoints must be either 1 or 2 if specified."
+  }
 }
 
 variable "tmpfs_size" {
@@ -178,6 +201,11 @@ variable "concurrency" {
   description = "The maximum number of requests processed by a function instance at the same time"
   type        = string
   default     = null
+
+  validation {
+    condition     = var.concurrency == null || (can(regex("^[0-9]+$", var.concurrency)) && tonumber(var.concurrency) >= 1 && tonumber(var.concurrency) <= 100)
+    error_message = "Concurrency must be a number between 1 and 100, or null."
+  }
 }
 
 variable "timeouts" {
