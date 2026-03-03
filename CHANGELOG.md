@@ -1,3 +1,7 @@
+## v1.32.0 - 2026-03-03
+### Chores
+- dbda53a chore(deps): bump hashicorp/setup-terraform from 3 to 4 ([#52](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/52))
+
 ## v1.31.0 - 2026-02-24
 ### Chores
 - 7d7cfc4 chore(deps): bump kvendingoldo/git-flow-action from 2.2.0 to 2.16.0 ([#51](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/51))
