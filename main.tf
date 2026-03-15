@@ -109,8 +109,10 @@ resource "yandex_function" "main" {
   dynamic "log_options" {
     for_each = var.log_options != null ? [1] : []
     content {
-      log_group_id = var.log_options.log_group_id
-      min_level    = var.log_options.min_level
+      disabled     = try(var.log_options.disabled, false)
+      log_group_id = try(var.log_options.log_group_id, null)
+      folder_id    = try(var.log_options.folder_id, null)
+      min_level    = try(var.log_options.min_level, null)
     }
   }
 

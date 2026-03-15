@@ -1,3 +1,7 @@
+## Unreleased
+### Changed
+- Align with [Terraform yandex_function docs](https://yandex.cloud/ru/docs/terraform/resources/function): `log_options` supports optional `disabled`, `folder_id`; `log_group_id`/`min_level` optional; `metadata_options` allows 0 (default), 1 (enabled), 2 (disabled); added runtime `nodejs20`
+
 ## v1.32.0 - 2026-03-03
 ### Chores
 - dbda53a chore(deps): bump hashicorp/setup-terraform from 3 to 4 ([#52](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/52))
