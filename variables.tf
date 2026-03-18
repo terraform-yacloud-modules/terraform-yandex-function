@@ -20,9 +20,9 @@ variable "runtime" {
 
   validation {
     condition = contains(["python37", "python38", "python39", "python310", "python311",
-      "python312", "nodejs12", "nodejs14", "nodejs16", "nodejs18", "golang114", "golang116",
-      "golang118", "golang119", "php74", "php80", "php81", "java11", "dotnetcore31",
-    "dotnet6", "r-for-yandex-cloud-1.0", "bash"], var.runtime)
+      "python312", "nodejs12", "nodejs14", "nodejs16", "nodejs18", "nodejs20", "golang114",
+      "golang116", "golang118", "golang119", "php74", "php80", "php81", "java11",
+    "dotnetcore31", "dotnet6", "r-for-yandex-cloud-1.0", "bash"], var.runtime)
     error_message = "Invalid runtime specified. Please choose from the allowed values."
   }
 }
@@ -124,10 +124,20 @@ variable "async_invocation" {
 variable "log_options" {
   description = "Options for logging from Yandex Cloud Function"
   type = object({
-    log_group_id = string
-    min_level    = string
+    log_group_id = optional(string)
+    folder_id    = optional(string)
+    min_level    = optional(string)
+    disabled     = optional(bool, false)
   })
   default = null
+
+  validation {
+    condition = var.log_options == null || try(
+      var.log_options.disabled || (var.log_options.log_group_id != null) != (var.log_options.folder_id != null),
+      false
+    )
+    error_message = "When not disabled, exactly one of log_group_id or folder_id must be set."
+  }
 }
 
 variable "public_function" {
@@ -183,11 +193,11 @@ variable "metadata_options" {
   default = null
 
   validation {
-    condition     = var.metadata_options == null || (
-                     (var.metadata_options.aws_v1_http_endpoint == null || (var.metadata_options.aws_v1_http_endpoint >= 1 && var.metadata_options.aws_v1_http_endpoint <= 2)) &&
-                     (var.metadata_options.gce_http_endpoint == null || (var.metadata_options.gce_http_endpoint >= 1 && var.metadata_options.gce_http_endpoint <= 2))
-                   )
-    error_message = "Metadata options endpoints must be either 1 or 2 if specified."
+    condition = var.metadata_options == null || (
+      (var.metadata_options.aws_v1_http_endpoint == null || (var.metadata_options.aws_v1_http_endpoint >= 0 && var.metadata_options.aws_v1_http_endpoint <= 2)) &&
+      (var.metadata_options.gce_http_endpoint == null || (var.metadata_options.gce_http_endpoint >= 0 && var.metadata_options.gce_http_endpoint <= 2))
+    )
+    error_message = "Metadata options endpoints must be 0 (default), 1 (enabled), or 2 (disabled) if specified."
   }
 }
 
