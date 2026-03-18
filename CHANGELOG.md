@@ -1,3 +1,7 @@
+## v1.33.0 - 2026-03-18
+### Miscellaneous
+- d096072 add disabled, folder_id to log_options ([#53](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/53))
+
 ## v1.32.0 - 2026-03-03
 ### Chores
 - dbda53a chore(deps): bump hashicorp/setup-terraform from 3 to 4 ([#52](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/52))
