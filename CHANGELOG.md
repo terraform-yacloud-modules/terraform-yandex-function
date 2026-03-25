@@ -1,3 +1,7 @@
+## v1.34.0 - 2026-03-25
+### Chores
+- 2d0f8da chore(deps): bump actions/cache from 5.0.3 to 5.0.4 ([#54](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/54))
+
 ## v1.33.0 - 2026-03-18
 ### Miscellaneous
 - d096072 add disabled, folder_id to log_options ([#53](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/53))
