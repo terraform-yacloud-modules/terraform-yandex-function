@@ -1,3 +1,7 @@
+## v1.36.0 - 2026-06-23
+### Chores
+- d44c043 chore(deps): bump actions/checkout from 6 to 7 ([#56](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/56))
+
 ## v1.35.0 - 2026-04-14
 ### Chores
 - 802c6fe chore(deps): bump actions/cache from 5.0.4 to 5.0.5 ([#55](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/55))
