@@ -1,3 +1,10 @@
+## v1.38.0 - 2026-07-20
+### Features
+- 650fb09 feat: add golang121 and golang123 runtimes
+
+### Miscellaneous
+- 3577094 Merge pull request [#58](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/58) from terraform-yacloud-modules/go-runtime
+
 ## v1.37.0 - 2026-06-30
 ### Chores
 - 5ac3570 chore(deps): bump actions/cache from 5.0.5 to 6.1.0 ([#57](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/57))
