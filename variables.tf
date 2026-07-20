@@ -21,7 +21,7 @@ variable "runtime" {
   validation {
     condition = contains(["python37", "python38", "python39", "python310", "python311",
       "python312", "nodejs12", "nodejs14", "nodejs16", "nodejs18", "nodejs20", "golang114",
-      "golang116", "golang118", "golang119", "php74", "php80", "php81", "java11",
+      "golang116", "golang118", "golang119", "golang121", "golang123", "php74", "php80", "php81", "java11",
     "dotnetcore31", "dotnet6", "r-for-yandex-cloud-1.0", "bash"], var.runtime)
     error_message = "Invalid runtime specified. Please choose from the allowed values."
   }
