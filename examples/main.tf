@@ -1,7 +1,7 @@
 module "iam_accounts" {
   source = "git::https://github.com/terraform-yacloud-modules/terraform-yandex-iam.git//modules/iam-account?ref=v1.0.0"
 
-  name = "iam"
+  name = "function-iam"
   folder_roles = [
     "serverless.functions.invoker",
     "storage.editor",
