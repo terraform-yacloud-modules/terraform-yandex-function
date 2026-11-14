@@ -1,3 +1,7 @@
+## v1.53.0 - 2026-11-14
+### Chores
+- 4e768c6 chore(deps): bump bridgecrewio/checkov-action ([#73](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/73))
+
 ## v1.52.0 - 2026-11-10
 ### Bug Fixes
 - 3bcdc1b fix(examples): use module-specific service account name ([#72](https://github.com/terraform-yacloud-modules/terraform-yandex-function/pull/72))
