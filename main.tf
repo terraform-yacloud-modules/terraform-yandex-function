@@ -135,3 +135,24 @@ resource "yandex_function_iam_binding" "invoker" {
   members     = ["system:allUsers"]
 
 }
+
+resource "yandex_function_iam_binding" "additional" {
+  for_each    = var.iam_bindings
+  function_id = yandex_function.main.id
+  role        = each.key
+  members     = each.value
+}
+
+resource "yandex_function_scaling_policy" "main" {
+  count       = length(var.scaling_policies) > 0 ? 1 : 0
+  function_id = yandex_function.main.id
+
+  dynamic "policy" {
+    for_each = var.scaling_policies
+    content {
+      tag                  = policy.value.tag
+      zone_instances_limit = try(policy.value.zone_instances_limit, null)
+      zone_requests_limit  = try(policy.value.zone_requests_limit, null)
+    }
+  }
+}

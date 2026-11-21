@@ -1,7 +1,16 @@
+data "yandex_client_config" "client" {}
+
+locals {
+  folder_id = coalesce(var.folder_id, data.yandex_client_config.client.folder_id)
+
+  function_hash = md5("${file("${path.module}/main.py")}${file("${path.module}/requirements.txt")}")
+}
+
 module "iam_accounts" {
   source = "git::https://github.com/terraform-yacloud-modules/terraform-yandex-iam.git//modules/iam-account?ref=v1.0.0"
 
-  name = "function-iam"
+  name      = "function-iam"
+  folder_id = local.folder_id
   folder_roles = [
     "serverless.functions.invoker",
     "storage.editor",
@@ -11,7 +20,6 @@ module "iam_accounts" {
   enable_static_access_key = false
   enable_api_key           = false
   enable_account_key       = false
-
 }
 
 data "archive_file" "main_zip" {
@@ -29,26 +37,24 @@ data "archive_file" "main_zip" {
   }
 }
 
-locals {
-  file1_content    = file("main.py")
-  file2_content    = file("requirements.txt")
-  combined_content = "${local.file1_content}${local.file2_content}"
-  combined_hash    = md5(local.combined_content)
-}
-
 module "function" {
-  source = "../"
+  source = "../.."
 
-  function_name        = "my-test-function"
+  folder_id            = local.folder_id
+  function_name        = "complete-function"
   public_function      = true
-  function_description = "A test function for Yandex Cloud"
-  user_hash            = local.combined_hash
+  function_description = "Complete example of a Yandex Cloud Function"
+  user_hash            = local.function_hash
   runtime              = "python312"
   entrypoint           = "main.handler"
   memory               = "128"
   execution_timeout    = "10"
   service_account_id   = module.iam_accounts.id
-  tags                 = ["my_tag"]
+  tags                 = ["complete"]
+  labels = {
+    environment = "test"
+    managed     = "terraform"
+  }
   metadata_options = {
     aws_v1_http_endpoint = 1
     gce_http_endpoint    = 1
@@ -59,12 +65,23 @@ module "function" {
   }
   concurrency  = "10"
   zip_filename = data.archive_file.main_zip.output_path
-  depends_on   = [module.iam_accounts]
+
+  # Role serverless.functions.invoker for all users is managed by public_function
+  iam_bindings = {
+    viewer = ["serviceAccount:${module.iam_accounts.id}"]
+  }
+
+  scaling_policies = [
+    {
+      tag                  = "complete"
+      zone_instances_limit = 2
+      zone_requests_limit  = 10
+    }
+  ]
 
   timeouts = {
     create = "40m"
     update = "40m"
     delete = "40m"
   }
-
 }
