@@ -38,3 +38,6 @@ terraform.rc
 /examples/function.zip
 /examples/main.zip
 .idea
+
+# Example build artifacts
+examples/*/main.zip

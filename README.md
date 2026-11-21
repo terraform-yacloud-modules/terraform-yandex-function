@@ -1,20 +1,77 @@
-# Yandex Cloud <RESOURCE> Terraform module
+# Terraform-модуль Yandex Cloud Function
 
-Terraform module which creates Yandex Cloud <RESOURCE> resources.
+Terraform-модуль создаёт [Yandex Cloud Function](https://yandex.cloud/ru/docs/functions/)
+и управляет связанными ресурсами: версией функции из локального zip-архива или
+Object Storage, IAM-привязками и политиками масштабирования.
 
-## Examples
+## Возможности
 
-Examples codified under
-the [`examples`](https://github.com/terraform-yacloud-modules/terraform-yandex-module-template/tree/main/examples) are intended
-to give users references for how to use the module(s) as well as testing/validating changes to the source code of the
-module. If contributing to the project, please be sure to make any appropriate updates to the relevant examples to allow
-maintainers to test your changes and to keep the examples up to date for users. Thank you!
+- создание функции с заданным runtime, точкой входа, памятью и таймаутом;
+- версия из локального zip-архива (`zip_filename`) или из Object Storage
+  (`package`);
+- переменные окружения (`env_vars`) и секреты (`secrets`);
+- метки функции (`labels`) и теги версии (`tags`);
+- подключение к VPC (`connectivity`) и доступ к метаданным
+  (`metadata_options`);
+- монтирования (`mounts`) и размер tmpfs (`tmpfs_size`);
+- асинхронный вызов через YMQ (`async_invocation`);
+- настройки логирования (`log_options`);
+- публичный доступ (`public_function`) и произвольные IAM-привязки
+  (`iam_bindings`);
+- политики масштабирования версии (`scaling_policies`);
+- таймауты операций create/update/delete (`timeouts`).
+
+## Использование
+
+```hcl
+module "function" {
+  source = "github.com/terraform-yacloud-modules/terraform-yandex-function"
+
+  function_name = "my-function"
+  runtime       = "python312"
+  entrypoint    = "main.handler"
+  memory        = "128"
+  user_hash     = md5(file("${path.module}/main.py"))
+  zip_filename  = data.archive_file.main_zip.output_path
+
+  tags = ["release"]
+
+  scaling_policies = [
+    {
+      tag                  = "release"
+      zone_instances_limit = 2
+      zone_requests_limit  = 10
+    }
+  ]
+
+  iam_bindings = {
+    viewer = ["serviceAccount:${yandex_iam_service_account.main.id}"]
+  }
+}
+```
+
+Тег из `scaling_policies` должен присутствовать в `tags`: политика
+масштабирования привязывается к версии функции с этим тегом.
+
+Роль `serverless.functions.invoker` для `system:allUsers` управляется
+параметром `public_function`. Не добавляйте её в `iam_bindings`, иначе два
+ресурса будут управлять одной и той же привязкой.
+
+## Примеры
+
+- [`examples/complete`](examples/complete) — полный пример: сервисный аккаунт,
+  переменные окружения, асинхронный вызов, IAM-привязки и политика
+  масштабирования;
+- [`examples/minimal`](examples/minimal) — минимальная функция из zip-архива.
+
+Провайдер `yandex` настраивается стандартно: через переменные окружения
+(`YC_TOKEN`, `YC_FOLDER_ID`, `YC_CLOUD_ID`) или ключ сервисного аккаунта.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0.0 |
 | <a name="requirement_yandex"></a> [yandex](#requirement\_yandex) | >= 0.72.0 |
@@ -22,7 +79,7 @@ maintainers to test your changes and to keep the examples up to date for users. 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_yandex"></a> [yandex](#provider\_yandex) | >= 0.72.0 |
 
 ## Modules
@@ -32,15 +89,17 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [yandex_function.main](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/function) | resource |
+| [yandex_function_iam_binding.additional](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/function_iam_binding) | resource |
 | [yandex_function_iam_binding.invoker](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/function_iam_binding) | resource |
+| [yandex_function_scaling_policy.main](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/function_scaling_policy) | resource |
 | [yandex_client_config.client](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/data-sources/client_config) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_async_invocation"></a> [async\_invocation](#input\_async\_invocation) | Config for asynchronous invocations of Yandex Cloud Function | <pre>object({<br/>    retries_count      = string<br/>    service_account_id = string<br/>    ymq_failure_target = optional(object({<br/>      service_account_id = string<br/>      arn                = string<br/>    }))<br/>    ymq_success_target = optional(object({<br/>      service_account_id = string<br/>      arn                = string<br/>    }))<br/>  })</pre> | `null` | no |
 | <a name="input_concurrency"></a> [concurrency](#input\_concurrency) | The maximum number of requests processed by a function instance at the same time | `string` | `null` | no |
 | <a name="input_connectivity"></a> [connectivity](#input\_connectivity) | Network connectivity settings for the function | <pre>object({<br/>    network_id = string<br/>  })</pre> | `null` | no |
@@ -50,6 +109,7 @@ No modules.
 | <a name="input_folder_id"></a> [folder\_id](#input\_folder\_id) | Folder ID for the Yandex Cloud Function | `string` | `null` | no |
 | <a name="input_function_description"></a> [function\_description](#input\_function\_description) | Description of the Yandex Cloud Function | `string` | `null` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | Yandex Cloud Function name | `string` | n/a | yes |
+| <a name="input_iam_bindings"></a> [iam\_bindings](#input\_iam\_bindings) | IAM bindings for the function as a map of role to a list of members. The serverless.functions.invoker role for all users is managed by public\_function | `map(list(string))` | `{}` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | A set of key/value label pairs to assign to the function | `map(string)` | `{}` | no |
 | <a name="input_log_options"></a> [log\_options](#input\_log\_options) | Options for logging from Yandex Cloud Function | <pre>object({<br/>    log_group_id = optional(string)<br/>    folder_id    = optional(string)<br/>    min_level    = optional(string)<br/>    disabled     = optional(bool, false)<br/>  })</pre> | `null` | no |
 | <a name="input_memory"></a> [memory](#input\_memory) | Memory in megabytes (aligned to 128MB) for Yandex Cloud Function | `string` | n/a | yes |
@@ -58,6 +118,7 @@ No modules.
 | <a name="input_package"></a> [package](#input\_package) | Package configuration for deploying from object storage | <pre>object({<br/>    bucket_name = string<br/>    object_name = string<br/>    sha_256     = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_public_function"></a> [public\_function](#input\_public\_function) | Determines if the function should be publicly accessible | `bool` | `false` | no |
 | <a name="input_runtime"></a> [runtime](#input\_runtime) | Runtime for Yandex Cloud Function | `string` | n/a | yes |
+| <a name="input_scaling_policies"></a> [scaling\_policies](#input\_scaling\_policies) | Scaling policies for Yandex Cloud Function versions. Each policy tag must be present in tags | <pre>list(object({<br/>    tag                  = string<br/>    zone_instances_limit = optional(number)<br/>    zone_requests_limit  = optional(number)<br/>  }))</pre> | `[]` | no |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | Secrets for Yandex Cloud Function | <pre>list(object({<br/>    id                   = string<br/>    version_id           = string<br/>    key                  = string<br/>    environment_variable = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_service_account_id"></a> [service\_account\_id](#input\_service\_account\_id) | Service account ID for Yandex Cloud Function | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for Yandex Cloud Function | `list(string)` | `[]` | no |
@@ -69,7 +130,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_created_at"></a> [created\_at](#output\_created\_at) | Creation timestamp of the Yandex Cloud Function |
 | <a name="output_entrypoint"></a> [entrypoint](#output\_entrypoint) | Entrypoint of the function |
 | <a name="output_folder_id"></a> [folder\_id](#output\_folder\_id) | Folder ID of the Yandex Cloud Function |
@@ -80,7 +141,6 @@ No modules.
 | <a name="output_version"></a> [version](#output\_version) | Version of the Yandex Cloud Function |
 <!-- END_TF_DOCS -->
 
-## License
+## Лицензия
 
-Apache-2.0 Licensed.
-See [LICENSE](https://github.com/terraform-yacloud-modules/terraform-yandex-module-template/blob/main/LICENSE).
+Apache-2.0. См. [LICENSE](LICENSE).

@@ -116,7 +116,7 @@ variable "async_invocation" {
   default = null
 
   validation {
-    condition     = var.async_invocation == null || (can(regex("^[0-9]+$", var.async_invocation.retries_count)) && tonumber(var.async_invocation.retries_count) >= 0 && tonumber(var.async_invocation.retries_count) <= 100)
+    condition     = var.async_invocation == null ? true : try(can(regex("^[0-9]+$", var.async_invocation.retries_count)) && tonumber(var.async_invocation.retries_count) >= 0 && tonumber(var.async_invocation.retries_count) <= 100, false)
     error_message = "Async invocation retries_count must be a number between 0 and 100."
   }
 }
@@ -144,6 +144,41 @@ variable "public_function" {
   description = "Determines if the function should be publicly accessible"
   type        = bool
   default     = false
+}
+
+variable "iam_bindings" {
+  description = "IAM bindings for the function as a map of role to a list of members. The serverless.functions.invoker role for all users is managed by public_function"
+  type        = map(list(string))
+  default     = {}
+
+  validation {
+    condition = alltrue([
+      for role, members in var.iam_bindings :
+      role != "" && length(members) > 0 && alltrue([for member in members : trimspace(member) != ""])
+    ])
+    error_message = "Each IAM binding must have a non-empty role and at least one non-empty member."
+  }
+}
+
+variable "scaling_policies" {
+  description = "Scaling policies for Yandex Cloud Function versions. Each policy tag must be present in tags"
+  type = list(object({
+    tag                  = string
+    zone_instances_limit = optional(number)
+    zone_requests_limit  = optional(number)
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for policy in var.scaling_policies :
+      policy.tag != "" &&
+      (policy.zone_instances_limit != null || policy.zone_requests_limit != null) &&
+      (policy.zone_instances_limit == null || policy.zone_instances_limit > 0) &&
+      (policy.zone_requests_limit == null || policy.zone_requests_limit > 0)
+    ])
+    error_message = "Each scaling policy must have a non-empty tag and at least one positive limit (zone_instances_limit or zone_requests_limit)."
+  }
 }
 
 
@@ -193,9 +228,10 @@ variable "metadata_options" {
   default = null
 
   validation {
-    condition = var.metadata_options == null || (
+    condition = var.metadata_options == null ? true : try(
       (var.metadata_options.aws_v1_http_endpoint == null || (var.metadata_options.aws_v1_http_endpoint >= 0 && var.metadata_options.aws_v1_http_endpoint <= 2)) &&
-      (var.metadata_options.gce_http_endpoint == null || (var.metadata_options.gce_http_endpoint >= 0 && var.metadata_options.gce_http_endpoint <= 2))
+      (var.metadata_options.gce_http_endpoint == null || (var.metadata_options.gce_http_endpoint >= 0 && var.metadata_options.gce_http_endpoint <= 2)),
+      false
     )
     error_message = "Metadata options endpoints must be 0 (default), 1 (enabled), or 2 (disabled) if specified."
   }
@@ -213,7 +249,7 @@ variable "concurrency" {
   default     = null
 
   validation {
-    condition     = var.concurrency == null || (can(regex("^[0-9]+$", var.concurrency)) && tonumber(var.concurrency) >= 1 && tonumber(var.concurrency) <= 100)
+    condition     = var.concurrency == null ? true : try(can(regex("^[0-9]+$", var.concurrency)) && tonumber(var.concurrency) >= 1 && tonumber(var.concurrency) <= 100, false)
     error_message = "Concurrency must be a number between 1 and 100, or null."
   }
 }
